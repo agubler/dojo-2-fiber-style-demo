@@ -54,18 +54,19 @@ interface SierpinskiTriangleProperties {
 	x: number;
 	y: number;
 	s: number;
+	text: string;
 }
 
 class SierpinskiTriangle extends WidgetBase<SierpinskiTriangleProperties, string> {
 	render() {
-		let { s, y, x } = this.properties;
+		let { s, y, x, text } = this.properties;
 
 		if (s <= targetSize) {
 			return w(Dot, {
 				x: x - (targetSize / 2),
 				y: y - (targetSize / 2),
 				size: targetSize,
-				text: this.children[0]
+				text
 			});
 		}
 
@@ -79,9 +80,9 @@ class SierpinskiTriangle extends WidgetBase<SierpinskiTriangleProperties, string
 		s /= 2;
 
 		return v('div', {},  [
-			w(SierpinskiTriangle, { key: '1', x, y: y - (s / 2), s }, this.children),
-			w(SierpinskiTriangle, { key: '2', x: x - s, y: y + (s / 2), s }, this.children),
-			w(SierpinskiTriangle, { key: '3', x: x + s, y: y + (s / 2), s }, this.children)
+			w(SierpinskiTriangle, { key: '1', x, y: y - (s / 2), s, text }),
+			w(SierpinskiTriangle, { key: '2', x: x - s, y: y + (s / 2), s, text }),
+			w(SierpinskiTriangle, { key: '3', x: x + s, y: y + (s / 2), s, text })
 		]);
 
 	}
@@ -101,13 +102,15 @@ export class ExampleApplication extends ThemeableMixin(WidgetBase)<ExampleApplic
 		this.invalidate();
 	}
 
-	onElementCreated() {
-		this._interval = setInterval(this.tick, 1000);
-		this.own({
-			destroy: () => {
-				clearInterval(this._interval);
-			}
-		});
+	onElementCreated(element: Element, key: string) {
+		if (key === 'root') {
+			this._interval = setInterval(this.tick, 1000);
+			this.own({
+				destroy: () => {
+					clearInterval(this._interval);
+				}
+			});
+		}
 	}
 
 	render() {
@@ -116,9 +119,9 @@ export class ExampleApplication extends ThemeableMixin(WidgetBase)<ExampleApplic
 		const scale = 1 + (t > 5 ? 10 - t : t) / 10;
 		const transform = 'scaleX(' + (scale / 2.1) + ') scaleY(0.7) translateZ(0.1px)';
 
-		return v('div', { styles: { transform }, classes: this.classes(css.container) }, [
+		return v('div', { key: 'root', styles: { transform }, classes: this.classes(css.container) }, [
 			v('div', {}, [
-				w(SierpinskiTriangle, { x: 0, y: 0, s: 1000}, [ `${_seconds}` ])
+				w(SierpinskiTriangle, { x: 0, y: 0, s: 1000, text: `${_seconds}`})
 			])
 		]);
 	}
