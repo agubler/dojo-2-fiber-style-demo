@@ -1,6 +1,7 @@
 /_build
 /bower_components
 /dist
+/output
 /html-report
 /node_modules
 /typings

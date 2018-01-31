@@ -9,7 +9,7 @@ const start = new Date().getTime();
 projector.__setProperties__({ elapsed: new Date().getTime() - start });
 
 function update() {
-	projector.__setProperties__({ elapsed: new Date().getTime() - start });
+	projector.setProperties({ elapsed: new Date().getTime() - start });
 	requestAnimationFrame(update);
 }
 

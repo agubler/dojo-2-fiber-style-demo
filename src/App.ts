@@ -1,7 +1,7 @@
 import { v, w } from '@dojo/widget-core/d';
 import { DNode } from '@dojo/widget-core/interfaces';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
-import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
+import { theme, ThemedMixin } from '@dojo/widget-core/mixins/Themed';
 
 import * as css from './styles/App.m.css';
 
@@ -15,7 +15,7 @@ interface DotProperties {
 const targetSize = 25;
 
 @theme(css)
-class Dot extends ThemeableMixin(WidgetBase)<DotProperties> {
+class Dot extends ThemedMixin(WidgetBase)<DotProperties> {
 
 	private _hover = false;
 
@@ -41,9 +41,11 @@ class Dot extends ThemeableMixin(WidgetBase)<DotProperties> {
 			lineHeight: `${s}px`
 		};
 
+		const classes = this._hover ? [ css.dot, css.hover ] : [ css.dot ];
+
 		return v('div', {
 			styles,
-			classes: this.classes(css.dot, this._hover ? css.hover : null),
+			classes,
 			onmouseenter: this._enter,
 			onmouseleave: this._leave
 		}, [ this._hover ? `*${text}*` : text ]);
@@ -93,7 +95,7 @@ interface ExampleApplicationProperties {
 }
 
 @theme(css)
-export class ExampleApplication extends ThemeableMixin(WidgetBase)<ExampleApplicationProperties> {
+export class ExampleApplication extends ThemedMixin(WidgetBase)<ExampleApplicationProperties> {
 	private _seconds = 0;
 	private _interval: any;
 
@@ -102,15 +104,13 @@ export class ExampleApplication extends ThemeableMixin(WidgetBase)<ExampleApplic
 		this.invalidate();
 	}
 
-	onElementCreated(element: Element, key: string) {
-		if (key === 'root') {
-			this._interval = setInterval(this.tick, 1000);
-			this.own({
-				destroy: () => {
-					clearInterval(this._interval);
-				}
-			});
-		}
+	constructor() {
+		super();
+		this._interval = setInterval(this.tick, 1000);
+	}
+
+	onDetach() {
+		clearInterval(this._interval);
 	}
 
 	render() {
@@ -119,7 +119,7 @@ export class ExampleApplication extends ThemeableMixin(WidgetBase)<ExampleApplic
 		const scale = 1 + (t > 5 ? 10 - t : t) / 10;
 		const transform = 'scaleX(' + (scale / 2.1) + ') scaleY(0.7) translateZ(0.1px)';
 
-		return v('div', { key: 'root', styles: { transform }, classes: this.classes(css.container) }, [
+		return v('div', { key: 'root', styles: { transform }, classes: [ css.container ] }, [
 			v('div', {}, [
 				w(SierpinskiTriangle, { x: 0, y: 0, s: 1000, text: `${_seconds}`})
 			])
